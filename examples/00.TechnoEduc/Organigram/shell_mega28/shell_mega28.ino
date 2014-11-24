@@ -9,7 +9,7 @@
 //  L'interpréteur de commande pour la carte Arduino Mega *
 //  Auteur : www.technozone51.fr ( Grosse Christophe )    *
 //  Licence : LGPL                                        *
-//  Version 2.7                               du 29/12/13 *
+//  Version 2.8                               du 10/11/14 *
 //  Pour Compilation avec Arduino 1.05                    *
 //*********************************************************
 
@@ -2134,6 +2134,70 @@ void interpreteur() {
               variable[lire_eeprom(slot,pc+1)-65]=value;
               pc=pc+5; 
               break;
+     case 40 : //Ecrire n octets b1...bn vers un composant I2C d'adresse a : 40anb1...bn
+//             #if defined(__mega_ver)
+//             if (debug) { 
+//                      }
+//              #endif        
+              n1 = lire_eeprom(slot,pc+1); //On lit l'adresse du composant I2C
+              n2 = lire_eeprom(slot,pc+2); //On lit le nombre d'octet à envoyer
+              Wire.beginTransmission(n1);  //démarre la communication avec le composant I2C
+              for (byte i=1;i<=n2;i++){
+                 //On envoie la donnée n°i
+                 n3 = lire_eeprom(slot,pc+2+i); //On lit un un octet à envoyer
+                 Wire.write(n3);
+                 }
+              Wire.endTransmission();      //Stoppe la communication avec le composant I2C
+              pc=pc+3+n2; 
+              break;
+     case 41 : //Lire un octet ( du registre courant ) d'un composant I2C d'adresse a et le comparer à la valeur v : 41avoo
+//             #if defined(__mega_ver)
+//             if (debug) { 
+//                      }
+//              #endif        
+              n1 = lire_eeprom(slot,pc+1); //On lit l'adresse du composant I2C
+              Wire.requestFrom(n1,1);  //On demande la lecture de 1 octet sur le composant I2C
+              delay(1);
+              value=Wire.read();  //On lit la valeur du registre courant
+              delay(1);
+              Wire.endTransmission();      //Stoppe la communication avec le composant I2C
+              //On compare la valeur du registre et la valeur de référence
+              if (value==lire_eeprom(slot,pc+2))
+              {
+               //La condition est remplie, on saute de l'offset indiquée
+//               #if defined(__mega_ver)
+//               if (debug) {
+//                Serial.print("Le test est positif, on saute de ");
+//                Serial.print(lire_eeprom(slot,pc+3)*256+lire_eeprom(slot,pc+4),DEC);
+//                Serial.println(" Octets"); 
+//               }
+//               #endif
+               no=lire_eeprom(slot,pc+3)*256+lire_eeprom(slot,pc+4);
+               pc=pc+no+4;
+              } else
+              {
+               //La condition n'est pas remplie, on éxécute le token suivant;
+//               #if defined(__mega_ver)
+//               if (debug) {
+//                Serial.println("Le test est negatif, on execute l'instruction suivante");
+//               }
+//               #endif
+              pc=pc+5; 
+              }
+              break;              
+     case 42 : //Ecrire 1 octets contenu dans la variable m vers le registre r d'un composant I2C d'adresse a : 42arm
+//             #if defined(__mega_ver)
+//             if (debug) { 
+//                      }
+//              #endif        
+              n1 = lire_eeprom(slot,pc+1); //On lit l'adresse du composant I2C
+              n2 = lire_eeprom(slot,pc+2); //On lit le numéro de registre 
+              Wire.beginTransmission(n1);  //démarre la communication avec le composant I2C
+              Wire.write(n2); //ecrire le numéro de registre
+              Wire.write(variable[lire_eeprom(slot,pc+3)-65]);
+              Wire.endTransmission();      //Stoppe la communication avec le composant I2C
+              pc=pc+4; 
+              break;
        
      case 255 : //Arrêt du programme dans le slot courant
               #if defined(__mega_ver)
@@ -2142,8 +2206,8 @@ void interpreteur() {
                         Serial.println(slot,DEC);
                         }
               #endif          
-              Serial.print("PROGRAM ENDING SLOT");
-              Serial.println(slot,DEC);
+              //Serial.print("PROGRAM ENDING SLOT");
+              //Serial.println(slot,DEC);
               break;    
           } //switch
      } else
@@ -3060,10 +3124,7 @@ void loop()
                     } 
                    #endif
                    //On envoie l'accusé de réception
-                   Serial.print("SERVO");
-                   Serial.print(no,DEC);
-                   Serial.print("=");
-                   Serial.println(value,DEC);
+                   Serial.println("DONE S");
                   } 
                 }
                                 
@@ -3098,13 +3159,16 @@ void loop()
                        Wire.requestFrom(n7,n8);
                        Serial.print("VALUE=");
                        for (byte i=1;i<n8;i++) {
+                         delay(1);
                          n9=Wire.read();
                          Serial.print(n9,DEC);
                          Serial.print(",");
                        }
+                       delay(1);
                        n9=Wire.read();
+                       Wire.endTransmission();
                        Serial.println(n9,DEC);
-                       Serial.println("DONE iR");
+                       delay(1);
                       } 
                     } //Fin sous commande R
                  //On interprète la sous-commande W
@@ -3126,8 +3190,10 @@ void loop()
                          n3 = lire_octet()-48; //Lecture D1
                          n4 = lire_octet()-48; //Lecture D0
                          n7 = n2*100+n3*10+n4; //Calcul de la donnée à transmettre
+                         delay(1);
                          Wire.write(n7);
                        }
+                       delay(1);
                        Wire.endTransmission();      //Stoppe la communication avec le composant I2C
                        Serial.println("DONE iW");
                       } 
