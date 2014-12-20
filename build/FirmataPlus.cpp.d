@@ -1,0 +1,27 @@
+S:\Perso\GitHub\technologies\arduino_beta\build\FirmataPlus.cpp.o: \
+ S:\Perso\GitHub\technologies\arduino_beta\build\FirmataPlus.cpp \
+ S:\Perso\GitHub\technologies\arduino_beta\libraries\Servo\src/Servo.h \
+ S:\Perso\GitHub\technologies\arduino_beta\libraries\Servo\src/avr/ServoTimers.h \
+ S:\Perso\GitHub\technologies\arduino_beta\sketch\libraries\Wire/Wire.h \
+ S:\Perso\GitHub\technologies\arduino_beta\hardware\arduino\avr\cores\arduino/Stream.h \
+ S:\Perso\GitHub\technologies\arduino_beta\hardware\arduino\avr\cores\arduino/Print.h \
+ S:\Perso\GitHub\technologies\arduino_beta\hardware\arduino\avr\cores\arduino/WString.h \
+ S:\Perso\GitHub\technologies\arduino_beta\hardware\arduino\avr\cores\arduino/Printable.h \
+ S:\Perso\GitHub\technologies\arduino_beta\sketch\libraries\FirmataPlus/FirmataPlus.h \
+ S:\Perso\GitHub\technologies\arduino_beta\sketch\libraries\FirmataPlus/Boards.h \
+ S:\Perso\GitHub\technologies\arduino_beta\hardware\arduino\avr\cores\arduino/Arduino.h \
+ S:\Perso\GitHub\technologies\arduino_beta\hardware\arduino\avr\cores\arduino/binary.h \
+ S:\Perso\GitHub\technologies\arduino_beta\hardware\arduino\avr\cores\arduino/WCharacter.h \
+ S:\Perso\GitHub\technologies\arduino_beta\hardware\arduino\avr\cores\arduino/HardwareSerial.h \
+ S:\Perso\GitHub\technologies\arduino_beta\hardware\arduino\avr\cores\arduino/Stream.h \
+ S:\Perso\GitHub\technologies\arduino_beta\hardware\arduino\avr\cores\arduino/USBAPI.h \
+ S:\Perso\GitHub\technologies\arduino_beta\hardware\arduino\avr\cores\arduino/Arduino.h \
+ S:\Perso\GitHub\technologies\arduino_beta\hardware\arduino\avr\variants\mega/pins_arduino.h \
+ S:\Perso\GitHub\technologies\arduino_beta\sketch\libraries\NewPing/NewPing.h \
+ S:\Perso\GitHub\technologies\arduino_beta\libraries\Stepper\src/Stepper.h \
+ S:\Perso\GitHub\technologies\arduino_beta\sketch\libraries\ooPinChangeInt/ooPinChangeInt.h \
+ S:\Perso\GitHub\technologies\arduino_beta\hardware\arduino\avr\cores\arduino/new.h \
+ S:\Perso\GitHub\technologies\arduino_beta\sketch\libraries\ooPinChangeInt/../cbiface/cbiface.h \
+ S:\Perso\GitHub\technologies\arduino_beta\sketch\libraries\AdaEncoder/AdaEncoder.h \
+ S:\Perso\GitHub\technologies\arduino_beta\sketch\libraries\AdaEncoder/../ooPinChangeInt/ooPinChangeInt.h \
+ S:\Perso\GitHub\technologies\arduino_beta\sketch\libraries\AdaEncoder/../cbiface/cbiface.h
