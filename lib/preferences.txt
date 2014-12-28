@@ -63,7 +63,7 @@ last.sketch.count=0
 # by default, check the processing server for any updates
 # (please avoid disabling, this also helps us know basic numbers 
 # on how many people are using Processing)
-update.check = true
+update.check = false
 
 # on windows, automatically associate .pde files with processing.exe
 platform.auto_file_type_associations = true
@@ -158,10 +158,10 @@ run.options =
 # settings for the -XmsNNNm and -XmxNNNm command line option
 run.options.memory = false
 run.options.memory.initial = 64
-run.options.memory.maximum = 256
+run.options.memory.maximum = 512
 
 # example of increasing the memory size for applets run externally
-#run.options = -Xms128m -Xmx1024m
+run.options = -Xms128m -Xmx1024m
 
 # index of the default display to use for present mode
 # (this setting not yet completely implemented)
