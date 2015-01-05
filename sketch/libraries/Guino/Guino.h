@@ -1,13 +1,22 @@
 /*
-	Librairie créée par David Souder - 08/07/2014
-	Librairie inspirée par le programme Seeed Grove disponible ici :
-	http://www.seeedstudio.com/wiki/Grove_-_125KHz_RFID_Reader
+	Reprise du projet GUINO DASHBOARD disponible sur cette page :
+	http://www.instructables.com/id/Guino-Dashboard-for-your-Arduino/
+	
+	Les contributeurs initiaux sont :
+		Programming and idea by: Mads Hobye
+		Easytransfer library by: Bill Porter
+		GUI library by:  Reza Ali
+	
+	Modifications apportées :
+		Descriptif XML Ardublock : Karl Thomas - techno94@gmail.com
+		Librarie : David Souder - souder.d@gmail.com
+		
+	Librairie modifiée par David Souder - 08/07/2014 (voir version en bas de section)
 	Cette librairie est librement utilisable
 	www.duinoedu.com
-
+	
+	Version 0.7 - du 26/11/2014
 */
-
-// Voir infos en bas de page
 
 
 #ifndef GUINO_H
@@ -17,7 +26,6 @@
 #include <EasyTransfer.h>
 #include <EEPROM.h>
 #include "EDU_debug.h"
-#include <EasyTransfer.h>
 #include <EEPROM.h>
 
 //----- Nécessaire si utilisation de String
@@ -40,14 +48,6 @@
 #define grandNombre long
 #define si if
 #define sinon else
-
-
-//////////////////////////////////////////////// Macro
-
-
-
-
-
 
 
 //////////////////////////////////////////////// Propre à Guino
@@ -79,14 +79,32 @@
 #define guino_setColor  21
 
 #define GUINO_BRANCHER() gBegin(34236)
-#define GUINO_GERER_INTERFACE() guino_update()
-#define GUINO_LIRE(val) gUpdateValue(&val);
 
-#define GUINO_DEFINIR_INTERFACE() gInit()
-#define GUINO_AFFICHER_TITRE(arg1) gAddLabel(arg1, 1)
-#define GUINO_AFFICHER_LIGNE() gAddSpacer(1)
-#define GUINO_AFFICHER_GRAPH(titre, adr, min, max) gAddMovingGraph(titre,min, max, &adr,10)
-#define GUINO_AFFICHER_POTENTIOMETRE(titre, adr, min, max) gAddSlider(min,max,titre, &adr)
+
+//---- Utilisées dans loop()
+#define GUINO_GERER_INTERFACE() guino_update() 	// Inconditionnel 
+#define GUINO_LIRE(val) gUpdateValue(&val);				// Met à jour les graphiques
+
+//---- Utilisées pour définir l'apparance de l'interface
+	//-- La fonction elle-même
+	#define GUINO_DEFINIR_INTERFACE() gInit()
+	//-- Les fonctions utilisables dans la précédente fonction
+		//- Les outils disponibles
+			// Ajouter un graphique
+			#define GUINO_AFFICHER_GRAPH(titre, adr, min, max) gAddMovingGraph(titre,min, max, &adr,10)  	
+			// Ajouter un potentiomètre virtuel
+			#define GUINO_AFFICHER_POTENTIOMETRE(titre, adr, min, max) gAddSlider(min,max,titre, &adr)
+			// Ajouter un interrupteur vituel (toogle)
+			#define GUINO_AFFICHER_INTERRUPTEUR(titre, adr) gAddToggle(titre, &adr)
+			
+		//- Gestion d'apparence
+		#define GUINO_AFFICHER_TITRE(arg1) gAddLabel(arg1, 1)
+		#define GUINO_AJOUTER_COLONNE()   gAddColumn()
+		#define GUINO_AFFICHER_LIGNE() gAddSpacer(1)
+		
+
+
+
 
 static boolean guidino_initialized = false;
 
@@ -94,35 +112,35 @@ static boolean guidino_initialized = false;
 
 	//---- Fonctions opératives
 	
-		static void EEPROMWriteInt(int p_address, int p_value);
-		static unsigned int EEPROMReadInt(int p_address);
-		static void guino_update();
-		static void gInitEEprom();
-		static void gSetColor(int _red, int _green, int _blue);
-		static void gGetSavedValue(int item_number, int *_variable);
-		static void gBegin(int _eepromKey);
-		static int gAddButton(char * _name);
-		static void gAddColumn();
-		static int gAddLabel(char * _name, int _size);
-		static int gAddSpacer(int _size);
-		static int gAddToggle(char * _name, int * _variable);
-		static int gAddFixedGraph(char * _name,int _min,int _max,int _bufferSize, int * _variable, int _size);
+		static void 					EEPROMWriteInt(int p_address, int p_value);
+		static unsigned int 		EEPROMReadInt(int p_address);
+		static void 					guino_update();
+		static void 					gInitEEprom();
+		static void 					gSetColor(int _red, int _green, int _blue);
+		static void 					gGetSavedValue(int item_number, int *_variable);
+		static void 					gBegin(int _eepromKey);
+		static int 						gAddButton(char * _name);
+		static void 					gAddColumn();
+		static int 						gAddLabel(char * _name, int _size);
+		static int 						gAddSpacer(int _size);
+		static int 						gAddToggle(char * _name, int * _variable, int min=0, int max=0);
+		static int 						gAddFixedGraph(char * _name,int _min,int _max,int _bufferSize, int * _variable, int _size);
 		
-		/*EDU US*/	static int gAddMovingGraphEDU(char * _name,int _min,int _max, int _valeur, int _size);
-		static int gAddMovingGraph(char * _name,int _min,int _max, int * _variable, int _size);
-		static int gUpdateLabel(int _item, char * _text);
-		static int gAddRotarySlider(int _min,int _max, char * _name, int * _variable);
-		static int gAddSlider(int _min,int _max, char * _name, int * _variable);
+		/*EDU US*/	static int 	gAddMovingGraphEDU(char * _name,int _min,int _max, int _valeur, int _size);
+		static int 						gAddMovingGraph(char * _name,int _min,int _max, int * _variable, int _size);
+		static int 						gUpdateLabel(int _item, char * _text);
+		static int 						gAddRotarySlider(int _min,int _max, char * _name, int * _variable);
+		static int 						gAddSlider(int _min,int _max, char * _name, int * _variable);
 		
 		
-		static void gUpdateValue(int _item);
+		static void 					gUpdateValue(int _item);
 		/*EDU US*/	static void gUpdateValueEDU(int _valeur);
 		/*ARD US*/	static void gUpdateValue(int * _variable);
-		static void gSendCommand(byte _cmd, byte _item, int _value);
+		static void 					gSendCommand(byte _cmd, byte _item, int _value);
 		//---
-		void gInit();
-		static void gButtonPressed(int id);
-		static void gItemUpdated(int id);
+		void 								gInit();
+		static void 					gButtonPressed(int id);
+		static void 					gItemUpdated(int id);
 
 
 
@@ -176,8 +194,7 @@ static boolean internalInit = true; // boolean to initialize before connecting t
 //give a name to the group of data
 static SEND_DATA_STRUCTURE guino_data;
 static int eepromKey = 1234;
-static void guino_update()
-{
+static void guino_update(){
 
   while(Serial.available())
   {
@@ -248,8 +265,7 @@ static void gGetSavedValue(int item_number, int *_variable)
 
 }
 
-static void gBegin(int _eepromKey)
-{
+static void gBegin(int _eepromKey){
 
   // Sets all pointers to a temporary value just to make sure no random memory pointers.
   for(int i = 0; i < guino_maxGUIItems; i++)
@@ -268,6 +284,9 @@ static void gBegin(int _eepromKey)
   gSendCommand(guino_iamhere, 0, 0); 
 
 }
+
+
+
 static int gAddButton(char * _name)
 {
   if(guino_maxGUIItems > guino_item_counter)
@@ -326,7 +345,7 @@ static int gAddSpacer(int _size)
 
 
 
-static int gAddToggle(char * _name, int * _variable)
+static int gAddToggle(char * _name, int * _variable, int min, int max)
 {
   if(guino_maxGUIItems > guino_item_counter)
   {
