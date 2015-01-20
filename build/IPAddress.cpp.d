@@ -10,6 +10,6 @@ S:\Perso\GitHub\technologies\arduino\build\IPAddress.cpp.o: \
  S:\Perso\GitHub\technologies\arduino\hardware\arduino\avr\cores\arduino/Printable.h \
  S:\Perso\GitHub\technologies\arduino\hardware\arduino\avr\cores\arduino/USBAPI.h \
  S:\Perso\GitHub\technologies\arduino\hardware\arduino\avr\cores\arduino/Arduino.h \
- S:\Perso\GitHub\technologies\arduino\hardware\arduino\avr\variants\mega/pins_arduino.h \
+ S:\Perso\GitHub\technologies\arduino\hardware\arduino\avr\variants\standard/pins_arduino.h \
  S:\Perso\GitHub\technologies\arduino\hardware\arduino\avr\cores\arduino/IPAddress.h \
  S:\Perso\GitHub\technologies\arduino\hardware\arduino\avr\cores\arduino/Printable.h
