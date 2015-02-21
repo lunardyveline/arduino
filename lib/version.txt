@@ -1,1 +1,1 @@
-1.5.8 EducTechnoSTI v4
+1.6.0
