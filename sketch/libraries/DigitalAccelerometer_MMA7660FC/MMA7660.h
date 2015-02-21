@@ -22,6 +22,11 @@
 //  License along with this library; if not, write to the Free Software
 //  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 //
+
+// Augmenté par David Souder (souder.d@gmail.com) pour www.duinoedu.com
+// Version du 10/01/2015
+
+
 /*******************************************************************************/
 #ifndef __MMC7660_H__
 #define __MMC7660_H__
@@ -53,6 +58,7 @@ class MMA7660
 {
 
 public:
+	MMA7660();
 	void init();
 	void setMode(uint8_t mode);
 	void setSampleRate(uint8_t rate);
@@ -60,14 +66,16 @@ public:
 	unsigned char getAcceleration(float *ax,float *ay,float *az);
 	/*EDU FR*/ void  brancher();
 	
-	/*EDU FR*/ float mesurerX();
+	/*EDU FR*/ int mesurerX();
 	/*EDU US*/ float getAccelerationX();
 	
-	/*EDU FR*/ float mesurerY();
+	/*EDU FR*/ int mesurerY();
 	/*EDU US*/ float getAccelerationY();
 	
-	/*EDU FR*/ float mesurerZ();
+	/*EDU FR*/ int mesurerZ();
 	/*EDU US*/ float getAccelerationZ();
+	
+	/*EDU US*/ int effectiveGetAcceleration(char axis='X');				// 0=X...
 	
 	/*EDU FR*/ float mesurerXYZ();
 	/*EDU US*/ float getAccelerationXYZ();
@@ -77,21 +85,31 @@ public:
 
 	/*EDU FR*/ float mesurerMouvement();
 	/*EDU US*/ float getMouvement();	
+	
 
+	// Réglage utilisateur (par monAccelerometre.correctionEnX=...)
+	/*EDU US*/	int correctionEnX;			// Décalages en X
+	/*EDU US*/	int correctionEnY;			// Y
+	/*EDU US*/	int correctionEnZ;			// Z
 	
 
 	float x,y,z;
 	
 	
 	
-private:
+protected:
 	void write(uint8_t _register, uint8_t _data);
 	uint8_t read(uint8_t _register);
 	//EDU: variables pour les calculs
 	float accX, accY, accZ;
 	
+	int m_nbrOfEch;
+	int noise;							// Niveau de bruit (perturbations)
+	int m_lastX;
+	int m_lastY;
+	int m_lastZ;
 	
-	
+
 
 };
 

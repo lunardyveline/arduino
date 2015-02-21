@@ -31,25 +31,117 @@
 
 //EDU:Ajouts---------------------------------------------------------
 
+MMA7660::MMA7660(){	
+	m_lastX = 500;				// Position horizontale
+	m_lastY = 500;				// Position horizontale
+	m_lastZ = 500;				
+	noise=30;						// On part du principe que le bruit est de 50 (d'après nos tests)
+	m_nbrOfEch=5;				// Nombre d'échantillons pour une mesure
+	correctionEnX=-27;						// Décalage en X
+	correctionEnY=0;							// Y
+	correctionEnZ=0;							// Z
+	
+}
+
+
 // ---------- Retourne l'accélération en g sur X
-/*FR*/ float MMA7660::mesurerX(){getAccelerationX();}
+/*FR*/ int MMA7660::mesurerX(){
+		
+		return effectiveGetAcceleration('X');			
+		
+}
 /*US*/ float MMA7660::getAccelerationX(){
 	getAcceleration(&accX,&accY,&accZ);
+		
 	return accX;
 }
 
 // ---------- Retourne l'accélération en g sur Y
-/*FR*/ float MMA7660::mesurerY(){return getAccelerationY();}
+/*FR*/ int MMA7660::mesurerY(){
+
+		return effectiveGetAcceleration('Y');	
+}
 /*US*/ float MMA7660::getAccelerationY(){
 	getAcceleration(&accX,&accY,&accZ);
 	return accY;
 }
 
 // ---------- Retourne l'accélération en g sur Z
-/*FR*/ float MMA7660::mesurerZ(){return getAccelerationZ();}
+/*FR*/ int MMA7660::mesurerZ(){return getAccelerationZ();}
 /*US*/ float MMA7660::getAccelerationZ(){
 	getAcceleration(&accX,&accY,&accZ);
 	return accZ;
+}
+
+int MMA7660::effectiveGetAcceleration(char axis){
+
+		
+		//-- On mesure la valeur brute (-1.5 > 1.5)
+			//Serial.println("--------------------");
+			int temp=0;
+			uint16_t ecart=0;
+			
+			//Serial.println(temp);
+			for(uint8_t i=0; i<m_nbrOfEch;i++){
+				if(axis=='X'){temp+= 1000*getAccelerationX();}			
+				if(axis=='Y'){temp+= 1000*getAccelerationY();}	
+				if(axis=='Z'){temp+= 1000*getAccelerationZ();}
+				delay(5);
+			}
+			temp/=m_nbrOfEch;
+			//Serial.println("Moyenne : ");
+			//Serial.println(temp);
+			
+		//-- On mappe
+		if(temp>0){
+			temp=map(temp,0,1000,500,1000);
+		}
+		else{
+			temp=map(temp,-1000,0,0,500);
+			//Serial.println("Après map : ");
+			//Serial.println(temp);
+		}
+	    
+		//-- On ré-étalonne
+			if(axis=='X'){temp=temp+correctionEnX;}			
+			if(axis=='Y'){temp=temp+correctionEnY;Serial.println(temp);}	
+			if(axis=='Z'){temp=temp+correctionEnZ;}
+			
+		//-- On fixe des limites
+			if(temp>1000){temp=1000;}
+			if(temp<0      ){temp=0;}
+	
+		//-- Si la valeur est significative, on la sauvegarde
+			if(axis=='X'){
+				if(temp > m_lastX+noise || temp < m_lastX-noise){
+				//-- On stocke la nouvelle valeur en mémoire
+					m_lastX=temp;
+				}
+			}			
+			if(axis=='Y'){
+				//Serial.println("m_lastY+noise : ");
+				//Serial.println(m_lastY+noise);
+				if(temp > (m_lastY+noise) || temp < (m_lastY-noise)){
+				//-- On stocke la nouvelle valeur en mémoire
+					m_lastY=temp;
+										Serial.println("Sauvegarde de temp avec : ");
+					//Serial.println(temp);
+				}
+			}	
+			if(axis=='Z'){
+				if(temp > m_lastZ+noise || temp < m_lastZ-noise){
+				//-- On stocke la nouvelle valeur en mémoire
+
+					m_lastZ=temp;
+				}
+			}
+			
+		
+		//-- On retourne la valeur
+			if(axis=='X'){return m_lastX;}			
+			if(axis=='Y'){return m_lastY;}	
+			if(axis=='Z'){return m_lastZ;}		
+	
 }
 
 // ---------- Résultat dans 3 variables
@@ -204,4 +296,6 @@ unsigned char MMA7660::getAcceleration(float *ax,float *ay,float *az)
     return 1;
     
 }
+
+
 

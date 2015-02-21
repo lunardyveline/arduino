@@ -46,7 +46,6 @@
 			stop();
 			delay(100);
 			
-		if(debug==1){Serial.println("==================== INITIALISATION TERMINEE");}
 
 }
 
@@ -68,7 +67,7 @@
 	}
 }
 /*EDU US*/	void MotorI2C::forward(String dir){
-		if(dir=="straight" 	|| dir=="tout droit" || dir=="tout_doit")															{sendI2C(0b00001010);}
+		if(dir=="straight" 	|| dir=="tout droit" || dir=="tout_doit")														{sendI2C(0b00001010);}
 		if(dir=="right" 		|| dir=="droite")																							{sendI2C(0b00001000);}
 		if(dir=="left"  		|| dir=="gauche")    																						{sendI2C(0b00000010);}
 }
@@ -135,9 +134,15 @@
 /*EDU FR*/ void MotorI2C::vitesse(long vitesseA, long vitesseB){speed(vitesseA,vitesseB);}
 /*EDU FR*/ void MotorI2C::writeSpeed(long vitesseA, long vitesseB){speed(vitesseA,vitesseB);}
 /*EDU US*/ void MotorI2C::speed(long vitesseA, long vitesseB){
+		DEBUGLN("Entree ds speed");
+		DEBUGLN("Valeurs transmises :::::");
 		DEBUG2("vitesseA", vitesseA);
-		uint8_t speedMotorA255;
-		uint8_t speedMotorB255;
+		DEBUG2("vitesseB", vitesseB);
+		
+		
+		//-- Valeur par défaut en fonction des dernières valeurs en mémoire
+		int16_t speedMotorA255=speedMotorA/4;
+		int16_t speedMotorB255=speedMotorB/4;
 		boolean actualiser=0;
 		
 		//--- on teste si la nouvelle vitesse A est différente de la précédente
@@ -158,35 +163,44 @@
 					else{speedMotorALimited=speedMotorA;}
 				//-- On actualise
 				speedMotorA255 = speedMotorALimited/4;
+				DEBUGLN("CALCUL VITESSE 255");
+				DEBUG2("speedMotorA255", speedMotorA255);
 				//if(debug==1){Serial.println("speed() : Vitesse recalculee A ");}
 				//if(debug==1){Serial.println(speedMotorA255);}
 			}
 			
 		//--- on teste si la nouvelle vitesse B est différente de la précédente
 			if(vitesseB!=speedMotorB){
-			//--- On signal qu'il faut actualiser
+			DEBUG2("speedMotorB", speedMotorB);
+			//--- On signale qu'il faut actualiser
 				actualiser=1;
-				if(debug==1){Serial.println("speed() : La vitesse B doit etre ajustee");}
-			//--- on mémorise d'abord la nouvelle vitesse B ds la mémoire (en %)
+				//if(debug==1){Serial.println("speed() : La vitesse A doit etre ajustee");}
+			//--- on mémorise d'abord la nouvelle vitesse A ds la mémoire
 				speedMotorB = vitesseB;
-				//if(debug==1){Serial.println("speed() : Vitesse B en %");}
-				//if(debug==1){Serial.println(speedMotorB);}
+				DEBUG2("On memorise la vitesse dans speedMotorB :", speedMotorB);
+				//if(debug==1){Serial.println("speed() : Vitesse A en %");}
+				//if(debug==1){Serial.println(speedMotorA);}
 			//--- On adapte la valeur d'actualisation
 				//-- On contraint la vitesse max à 1000
 					int16_t speedMotorBLimited;
 					if(speedMotorB>1000){speedMotorBLimited=1000;}
 					else{speedMotorBLimited=speedMotorB;}
 				//-- On actualise
-				speedMotorB255 = map(speedMotorBLimited,0,1000,0,254);
-				//if(debug==1){Serial.println("speed() : Vitesse recalculee B ");}
-				//if(debug==1){Serial.println(speedMotorB255);}
+				speedMotorB255 = speedMotorBLimited/4;
+				DEBUGLN("CALCUL VITESSE 255");
+				DEBUG2("speedMotorB255", speedMotorB255);
+				//if(debug==1){Serial.println("speed() : Vitesse recalculee A ");}
+				//if(debug==1){Serial.println(speedMotorA255);}
 			}
 		
 		//--- Actualisation vitesse I2C 
 		if(actualiser==1){
 			//--- on fait appel à la fonction d'actualisation de la nouvelle vitesse
 			//if(debug==1){Serial.println("Actualisation de la vitesse");}
-			setSpeed(speedMotorA255,speedMotorB255);
+			setSpeed(speedMotorA255, speedMotorB255);
+			DEBUGLN("ACTUALISATION EFFECTIVE");
+			DEBUG2("speedMotorA255",speedMotorA255);
+			DEBUG2("speedMotorB255",speedMotorB255);
 			//--- On signale qu'il n'est plus nécessaire d'actualiser
 			actualiser=0;
 			//--- On attend 100ms (préconisé par Seeed

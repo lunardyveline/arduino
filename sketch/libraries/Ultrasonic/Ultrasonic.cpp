@@ -30,14 +30,14 @@
 #include "WProgram.h"
 #endif
 
-Ultrasonic::Ultrasonic(int pin, int pinTrig)
-{
+//<<CONSTRUCTOR>>
+Ultrasonic::Ultrasonic(int pin, int pinTrig){
 	_pinTrig = pinTrig;
 	_pin = pin;
 }
 
-
-void Ultrasonic::MeasureInCentimeters(void){
+// MESURES EN CM
+/*EDU FR*/long Ultrasonic::mesurerEnCm(void){
   if(_pinTrig==0){
     // Gestion type Grove
 	pinMode(_pin, OUTPUT);
@@ -49,6 +49,7 @@ void Ultrasonic::MeasureInCentimeters(void){
 	pinMode(_pin,INPUT);
 	duration = pulseIn(_pin,HIGH);
 	RangeInCentimeters = duration/29/2;	
+	return RangeInCentimeters;
 	}
 	else{
 	// Gestion Dupont=SR04
@@ -61,13 +62,61 @@ void Ultrasonic::MeasureInCentimeters(void){
 	pinMode(_pin,INPUT);
 	duration = pulseIn(_pin,HIGH);
 	RangeInCentimeters = duration/29/2;
+	return RangeInCentimeters;
+	}
+}
+/*ARD US*/ void Ultrasonic::MeasureInCentimeters(void){
+  if(_pinTrig==0){
+    //----- Gestion type Grove (1 broche)
+	pinMode(_pin, OUTPUT);
+	digitalWrite(_pin, LOW);
+	delayMicroseconds(2);
+	digitalWrite(_pin, HIGH);
+	delayMicroseconds(5);
+	digitalWrite(_pin,LOW);
+	pinMode(_pin,INPUT);
+	duration = pulseIn(_pin,HIGH);
+	RangeInCentimeters = duration/29/2;	
+	}
+	else{
+	//----- Gestion Dupont=SR04 (2 broches)
+	pinMode(_pinTrig, OUTPUT);
+	digitalWrite(_pinTrig, LOW);
+	delayMicroseconds(2);
+	digitalWrite(_pinTrig, HIGH);
+	delayMicroseconds(5);
+	digitalWrite(_pinTrig,LOW);
+	pinMode(_pin,INPUT);
+	duration = pulseIn(_pin,HIGH);
+	RangeInCentimeters = duration/29/2;
 	}
 }
 
-/////////////////////////////////////////////
-/////////////////////////////////////////////
-/////////////////////////////////////////////
-/////////////////////////////////////////////
+/*EDU FR*/ long Ultrasonic::mesurer(int nbrOfEch){return MultiMeasureInCentimeters(nbrOfEch);}
+/*EDU US*/ long Ultrasonic::MultiMeasureInCentimeters(int nbrOfEch){
+	long val=0;
+	//-- On récupère le nombre d'échantillons courant
+		if(nbrOfEch<ULTRASONIC_NBR_OF_ECH_MAX){_nbrOfEch=nbrOfEch;}
+		else{_nbrOfEch=ULTRASONIC_NBR_OF_ECH_MAX;}
+		
+	//-- On réalise les mesures et on remplit le tableau
+		for(uint8_t i=0;i<nbrOfEch;i++){
+			MeasureInCentimeters();
+			_ech[i]=RangeInCentimeters;
+			delay(10);
+		}
+	//-- On calcule la valeur moyenne des échantillons
+		for(uint8_t j=0;j<nbrOfEch;j++){
+			val+=_ech[j];
+		}
+		val/=nbrOfEch;
+	
+	return val;
+		
+
+}
+
+// MESURES EN MM 
 /*EDU FR*/ long Ultrasonic::mesurerEnMm(void){
 	return MeasureInMillimeters();
 }
@@ -100,38 +149,8 @@ void Ultrasonic::MeasureInCentimeters(void){
 	}
 }
 
-long Ultrasonic::mesurer(void){
-  if(_pinTrig==0){
-    // Gestion type Grove
-	pinMode(_pin, OUTPUT);
-	digitalWrite(_pin, LOW);
-	delayMicroseconds(2);
-	digitalWrite(_pin, HIGH);
-	delayMicroseconds(5);
-	digitalWrite(_pin,LOW);
-	pinMode(_pin,INPUT);
-	duration = pulseIn(_pin,HIGH);
-	RangeInCentimeters = duration/29/2;	
-	return RangeInCentimeters;
-	}
-	else{
-	// Gestion Dupont=SR04
-	pinMode(_pinTrig, OUTPUT);
-	digitalWrite(_pinTrig, LOW);
-	delayMicroseconds(2);
-	digitalWrite(_pinTrig, HIGH);
-	delayMicroseconds(5);
-	digitalWrite(_pinTrig,LOW);
-	pinMode(_pin,INPUT);
-	duration = pulseIn(_pin,HIGH);
-	RangeInCentimeters = duration/29/2;
-	return RangeInCentimeters;
-	}
-}
-
-
-void Ultrasonic::MeasureInInches(void)
-{
+// MESURES EN POUCES
+/*ARD US*/ void Ultrasonic::MeasureInInches(void){
 	pinMode(_pin, OUTPUT);
 	digitalWrite(_pin, LOW);
 	delayMicroseconds(2);
@@ -142,3 +161,5 @@ void Ultrasonic::MeasureInInches(void)
 	duration = pulseIn(_pin,HIGH);
 	RangeInInches = duration/74/2;
 }
+
+

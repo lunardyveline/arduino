@@ -70,8 +70,9 @@ public:
 
 /*EDU FR*/ float afficherTensionEntree(int const analogPin);
 /*EDU US*/ float displayVoltagePin(int const analogPin);
-/*EDU FR*/ float afficherTension(int valCan);
-/*EDU FR*/ float displayVoltage(int valCan);
+
+/*EDU FR*/ float afficherTension(long val, long min=0, long max=1000);
+/*EDU FR*/ float displayVoltage(long val, long min=0, long max=1000);
 
 /*ARD US*/ void ledIndexBit(unsigned int index_bits);      // index bit led
 /*ARD US*/ void setLevel(int level);                       // set level
@@ -86,11 +87,16 @@ protected:
 				int   nbrOfLed;			       // Number of Led used for the ledbar
 				int   measureCan;
 				float measureInVolts;
-				int   measureInNbrOfLed;	   
+				int   measureInNbrOfLed;
+				long  val;
+				long  minVal;                  
+				long  maxVal;
 			}voltmeter;
 			
-			voltmeter m_voltmeter;
+			voltmeter m_mem;
 
+			bool m_mempinModeOk;
+			
 /*EDU US*/  bool ledMemory[EDU_LEDBAR_NBR_LED];
 /*EDU US*/  bool ledNewSet[EDU_LEDBAR_NBR_LED];
 				

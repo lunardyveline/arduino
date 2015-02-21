@@ -20,6 +20,15 @@
   You should have received a copy of the GNU Lesser General Public
   License along with this library; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+  
+  -----------
+  
+  EDU : Librairie augmentée par David Souder (souder.d@gmail.com) pour www.duinoedu.com
+  Version du 04/01/2015
+  
+  
+  
+  
 */
 
 #include <Arduino.h>
@@ -38,9 +47,9 @@ LED_Bar::LED_Bar(int pinClk, int pinDta)
     pinMode(__pinDta, OUTPUT);
 	
 	// Voltmeter
-	/*EDU US*/ m_voltmeter.pinModeOk=false;     // Default config analogPin = not ok !
-    /*EDU US*/ m_voltmeter.range =1023;         // Default range CAN 0~1023
-	/*EDU US*/ m_voltmeter.nbrOfLed =EDU_LEDBAR_NBR_LED;       
+	/*EDU US*/ m_mem.pinModeOk=false;     // Default config analogPin = not ok !
+    /*EDU US*/ m_mem.range =1023;         // Default range CAN 0~1023
+	/*EDU US*/ m_mem.nbrOfLed =EDU_LEDBAR_NBR_LED;       
 	
 	for(char i=0;i<EDU_LEDBAR_NBR_LED;i++){ledMemory[i]=0;} // Init. table of led to 0
 	clearAll();
@@ -151,56 +160,60 @@ void LED_Bar::allumerTout(void){
 /*EDU US*/ float LED_Bar::afficherTensionEntree(int const analogPin){return displayVoltage(analogPin);}
 /*EDU US*/ float LED_Bar::displayVoltagePin(int const analogPin ){
 	// Save configuration
-		m_voltmeter.pin=analogPin;
+		m_mem.pin=analogPin;
 	// Set the pin mode if not ok 
-		if(!m_voltmeter.pinModeOk){
-			pinMode(m_voltmeter.pin,INPUT);
-			m_voltmeter.pinModeOk=true;
+		if(!m_mem.pinModeOk){
+			pinMode(m_mem.pin,INPUT);
+			m_mempinModeOk=true;
 		}
 
 	// Measure
-		m_voltmeter.measureCan=analogRead(m_voltmeter.pin);
+		m_mem.measureCan=analogRead(m_mem.pin);
 		delay(15);
 
-	    return displayVoltage(m_voltmeter.measureCan);
+	    return displayVoltage(m_mem.measureCan);
 }
 
-float LED_Bar::afficherTension(int valCan){displayVoltage(valCan);}
-float LED_Bar::displayVoltage(int valCan){
-		// Convertion in volts
-		int alimInMv = 5001;
-		float resultVolts;
-		resultVolts = map(valCan,0,m_voltmeter.range,0,alimInMv);
-		m_voltmeter.measureInVolts = resultVolts/1000;
-		// /*debug*/ Serial.println(m_voltmeter.measureInVolts);
+float LED_Bar::afficherTension(long val, long min, long max){return displayVoltage(val,min,max);}
+float LED_Bar::displayVoltage(long val, long min, long max){
 	
-	// Convertion in number of led
-		int resultNbrLed;
-		resultNbrLed = map(resultVolts,0,alimInMv,0,m_voltmeter.nbrOfLed+1);
-		// If change in the number of led
-		if(resultNbrLed!=m_voltmeter.measureInNbrOfLed){
-			m_voltmeter.measureInNbrOfLed = resultNbrLed;
-			// /*debug*/ Serial.println("-----------------------------");
-			// /*debug*/ Serial.println(m_voltmeter.measureInNbrOfLed);
+	//-- On stocke les valeurs en mémoire
+		m_mem.val=val;
+		m_mem.minVal=min;
+		m_mem.maxVal=max;
 	
-			// Save result in the ledMemory
-			for(char i=0;i<EDU_LEDBAR_NBR_LED;i++){ledNewSet[i]=0;}        // Clear
-			for(char i=0;i<m_voltmeter.measureInNbrOfLed;i++){             // Save
-				ledNewSet[i]=1;
-				// /*debug*/ Serial.println(ledNewSet[i]);
-			}
+	//-- On récupère la valeur souhaitée
+		m_mem.val=val;
+	
+	//-- On écrète si besoin (on peut aussi utiliser la fonction Arduino)
+		if(m_mem.val>m_mem.maxVal){m_mem.val=m_mem.maxVal;}
+		if(m_mem.val<m_mem.minVal){m_mem.val=m_mem.minVal;}
+	
+	//-- On calcule la correspondance en nombre de LED
+		uint8_t resultNbrOfLed=map(m_mem.val,m_mem.minVal,m_mem.maxVal,0,m_mem.nbrOfLed+1); 		
 		
-			// displaying 
+	//-- On détermine s'il faut actualiser l'affichage		
+		if(resultNbrOfLed!=m_mem.measureInNbrOfLed){
+			//-- On stocke la nouvelle valeur en memoire
+				m_mem.measureInNbrOfLed = resultNbrOfLed;
+			//-- On met à jour le tableau des nouvelles valeurs
+				for(char i=0;i<EDU_LEDBAR_NBR_LED;i++){ledNewSet[i]=0;}        // On efface
+				for(char i=0;i<m_mem.measureInNbrOfLed;i++){             // On set
+					ledNewSet[i]=1;
+				}
+		
+			//-- On met à jour l'affichage 
 			for(int i=0;i<EDU_LEDBAR_NBR_LED;i++){
+				//-- On teste LED par LED pour voir s'il y a des changements
 				if(ledNewSet[i]!=ledMemory[i]){
-					//Toggle
+					//- Toggle
 					setSingleLed(9-i,(int)ledNewSet[i]);
-					// Save change
+					//- On sauvegarde le changement
 					ledMemory[i]=ledNewSet[i];
 				}
 			}
 		} // END if
 	
-	return m_voltmeter.measureInVolts;
+	return m_mem.val;
 }
 

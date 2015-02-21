@@ -67,8 +67,7 @@ int MATCH_SPACE(int measured_ticks, int desired_us) {
 }
 #endif
 
-void IRsend::sendNEC(unsigned long data, int nbits)
-{
+void IRsend::sendNEC(unsigned long data, int nbits){
   enableIROut(38);
   mark(NEC_HDR_MARK);
   space(NEC_HDR_SPACE);
@@ -87,7 +86,7 @@ void IRsend::sendNEC(unsigned long data, int nbits)
   space(0);
 }
 
-void IRsend::sendSony(unsigned long data, int nbits) {
+void IRsend::sendSony(unsigned long data, int nbits){
   enableIROut(40);
   mark(SONY_HDR_MARK);
   space(SONY_HDR_SPACE);
@@ -105,8 +104,7 @@ void IRsend::sendSony(unsigned long data, int nbits) {
   }
 }
 
-void IRsend::sendRaw(unsigned int buf[], int len, int hz)
-{
+void IRsend::sendRaw(unsigned int buf[], int len, int hz){
   enableIROut(hz);
   for (int i = 0; i < len; i++) {
     if (i & 1) {
@@ -120,8 +118,7 @@ void IRsend::sendRaw(unsigned int buf[], int len, int hz)
 }
 
 // Note: first bit must be a one (start bit)
-void IRsend::sendRC5(unsigned long data, int nbits)
-{
+void IRsend::sendRC5(unsigned long data, int nbits){
   enableIROut(36);
   data = data << (32 - nbits);
   mark(RC5_T1); // First start bit
@@ -142,8 +139,7 @@ void IRsend::sendRC5(unsigned long data, int nbits)
 }
 
 // Caller needs to take care of flipping the toggle bit
-void IRsend::sendRC6(unsigned long data, int nbits)
-{
+void IRsend::sendRC6(unsigned long data, int nbits){
   enableIROut(36);
   data = data << (32 - nbits);
   mark(RC6_HDR_MARK);
@@ -199,8 +195,7 @@ void IRsend::sendPanasonic(unsigned int address, unsigned long data) {
     mark(PANASONIC_BIT_MARK);
     space(0);
 }
-void IRsend::sendJVC(unsigned long data, int nbits, int repeat)
-{
+void IRsend::sendJVC(unsigned long data, int nbits, int repeat){
     enableIROut(38);
     data = data << (32 - nbits);
     if (!repeat){
@@ -263,8 +258,7 @@ void IRsend::enableIROut(int khz) {
   TIMER_CONFIG_KHZ(khz);
 }
 
-IRrecv::IRrecv(int recvpin)
-{
+IRrecv::IRrecv(int recvpin){
   irparams.recvpin = recvpin;
   irparams.blinkflag = 0;
 }
@@ -294,8 +288,7 @@ void IRrecv::enableIRIn() {
 }
 
 // enable/disable blinking of pin 13 on IR processing
-void IRrecv::blink13(int blinkflag)
-{
+void IRrecv::blink13(int blinkflag){
   irparams.blinkflag = blinkflag;
   if (blinkflag)
     pinMode(BLINKLED, OUTPUT);
@@ -308,8 +301,7 @@ void IRrecv::blink13(int blinkflag)
 // First entry is the SPACE between transmissions.
 // As soon as a SPACE gets long, ready is set, state switches to IDLE, timing of SPACE continues.
 // As soon as first MARK arrives, gap width is recorded, ready is cleared, and new logging starts
-ISR(TIMER_INTR_NAME)
-{
+ISR(TIMER_INTR_NAME){
   TIMER_RESET;
 
   uint8_t irdata = (uint8_t)digitalRead(irparams.recvpin);
@@ -390,20 +382,111 @@ void IRrecv::resume() {
 /*FR*/ void IRrecv::brancher(){ branch();}
 /*US*/ void IRrecv::branch(){
 	enableIRIn();
+	m_lifeLongPush=200;				// Durée de vie minimale d'un appui long
+	m_dateLongPush=0;
 }
 
 // ---------- Lecture du code et retour type long
-/*FR*/ unsigned long IRrecv::lireCodeIr(){ return codeIrReadLong(); }
-/*US*/ unsigned long IRrecv::codeIrReadLong(){
-	unsigned long codeTouche=0;
-    if ( decode( &serialImpuls ) )
-    { codeTouche = serialImpuls.value ; 
-      resume();
-	  return codeTouche;
-    }
-	return 0;
+/*EDU FR*/ unsigned long IRrecv::lireCodeIr(int option){ return codeIrReadLong(option); }
+/*EDU US*/ unsigned long IRrecv::codeIrReadLong(int option){
+	// 3 options de décodage :
+	// Option = -1 : (défaut) Le code doit être lu en "live"    
+	// Option = 0  : (IRREMOTE_DERNIER_CODE) Le code courant est le dernier code lu
+	// Option = xx : Le code à une durée de vie de xx milisecondes
+	
+	// Sauvegarde durée de vie du code
+		/**/if(option>0){m_lifeCode=option;}
+		/**/else{m_lifeCode=0;}
+		
+		unsigned long codeTouche=0;
+    
+		if ( decode( &serialImpuls ) ){ 
+		  //-- On lit le code d'une manière inconditionnelle
+		    codeTouche = serialImpuls.value ; 
+		  //-- On mémorise ce code
+			//-- Si ce n'est pas le code d'appui long
+				if(codeTouche!=4294967295){
+					//-On mémorise comme code représentatif de la touche appuyée
+						m_lastCode=codeTouche;
+						Serial.println(codeTouche);
+					//-On déclare immédiatement que ce n'est pas ou plus un appui long	
+						m_longPush=false;
+				}
+			//-- Si c'est le code d'appui long (le même pour toutes les touches)	
+				else{
+					//-On déclare que c'est un appuis long
+						m_longPush=true;
+						m_dateLongPush=millis();
+				}
+					
+				//- On enregistre la date
+					m_dateCode=millis();
+			resume();
+		}			
+		
+	//-------- Gestion des appuis longs
+		if(m_longPush){
+			if(millis()<m_dateLongPush+m_lifeLongPush){
+				//-- On est en mode appuis long => les options ne comptent pas
+					return m_lastCode;
+			}
+			else{
+				//-- Appui long périmé
+					m_longPush=false;
+					return m_lastCode;
+			}
+		}
+				
+		
+		else{
+			//-- On est en mode appui court
+			m_longPush=false;
+		//----- Gestion : Temps réel (pas d'effet mémoire) 	
+			if(option==0){return codeTouche;}	
+		//-----  Gestion : Tempo
+			if(option>0){
+				/**/if(millis()<m_dateCode+m_lifeCode){return m_lastCode;}
+				/**/else{return codeTouche;}
+			}
+		//----- Gestion : Rappel de la dernière touche
+			if(option==-1){return m_lastCode;}			
+		
+		}
+		
 }
 
+/*EDU FR*/ bool IRrecv::testerTouche(String touche,int option){return testTouch(touche,option);}
+/*EDU US*/ bool IRrecv::testTouch(String touch,int option){
+	//Appui court 16... / Appui long 42...
+	if((touch=="POWER"||touch=="ON/OFF"||touch=="ON")  && (codeIrReadLong(option)==16753245 )){return true;}
+	//if(touch=="CH"   && (codeIrReadLong(option)==16736925 )){return true;}
+	if(touch=="MENU" && (codeIrReadLong(option)==16769565 )){return true;}
+	if(touch=="TEST" && (codeIrReadLong(option)==16720605 )){return true;}
+	if(touch=="+" && (codeIrReadLong(option)==16712445 )){return true;}
+	if(touch=="ANNULER" && (codeIrReadLong(option)==16761405 )){return true;}
+	if(touch=="RETOUR" && (codeIrReadLong(option)==16769055 )){return true;}
+	if(touch=="LECTURE" && (codeIrReadLong(option)==16754775 )){return true;}
+	if(touch=="AVANCE"   && (codeIrReadLong(option)==16748655 )){return true;}
+	if(touch=="0"    && (codeIrReadLong(option)==16738455 )){return true;}
+	if(touch=="-"  && (codeIrReadLong(option)==16750695 )){return true;}
+	if(touch=="C"  && (codeIrReadLong(option)==16756815 )){return true;}
+	if(touch=="1"    && (codeIrReadLong(option)==16724175 )){return true;}
+	if(touch=="2"    && (codeIrReadLong(option)==16718055 )){return true;}
+	if(touch=="3"    && (codeIrReadLong(option)==16743045 )){return true;}
+	if(touch=="4"    && (codeIrReadLong(option)==16716015 )){return true;}
+	if(touch=="5"    && (codeIrReadLong(option)==16726215 )){return true;}
+	if(touch=="6"    && (codeIrReadLong(option)==16734885 )){return true;}
+	if(touch=="7"    && (codeIrReadLong(option)==16728765 )){return true;}
+	if(touch=="8"    && (codeIrReadLong(option)==16730805 )){return true;}
+	if(touch=="9"    && (codeIrReadLong(option)==16732845 )){return true;}
+
+	
+	
+	
+	
+	return false;
+		
+}
 
 // Decodes the received IR message
 // Returns 0 if no data ready, 1 if data ready.
@@ -1029,8 +1112,7 @@ void IRsend::sendSharp(unsigned long data, int nbits) {
   delay(46);
 }
 
-void IRsend::sendDISH(unsigned long data, int nbits)
-{
+void IRsend::sendDISH(unsigned long data, int nbits){
   enableIROut(56);
   mark(DISH_HDR_MARK);
   space(DISH_HDR_SPACE);

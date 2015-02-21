@@ -19,22 +19,26 @@
 //========== << CONSTRUCTOR >>
 
 /*EDU FR*/	ServoPlus::ServoPlus(){
-		//----On commence par constructive dynamiquement le servo de base
+		//----On commence par construir dynamiquement le servo de base
 			servo = new Servo();
 		//---- On initialise certains attributs
-			m_speed = 50;								// 0 à 1000 (1023)
+			m_speed = 0;								// 0 à 1000 (1023)
 			
 }
 
 
 //========== SETUP
 
-/*EDU US*/	uint8_t		ServoPlus::brancher(int pin){return branch(pin);}
-/*EDU US*/	uint8_t		ServoPlus::branch(int pin){return attach(pin);}
-/*EDU US*/	uint8_t		ServoPlus::attach(int pin){
+/*EDU US*/	uint8_t		ServoPlus::brancher(int pin, int buteeBasse, int buteeHaute){return branch(pin);}
+/*EDU US*/	uint8_t		ServoPlus::branch(int pin, int buteeBasse, int buteeHaute){return attach(pin);}
+/*EDU US*/	uint8_t		ServoPlus::attach(int pin, int buteeBasse, int buteeHaute){
 	
 	//---- On attache le véritable servo
 		return 	servo->attach(pin);
+	
+	//---- On enregistre les butees
+		m_buteeHaute = buteeHaute;
+		m_buteeBasse = buteeBasse;
 }
 
 
@@ -44,9 +48,12 @@
 /*EDU FR*/	void		ServoPlus::ecrireAngle(int value, int speed){write(value,speed);}
 /*EDU US*/	void		ServoPlus::write(int value, int speed){
 	
+	//---- On limite les valeurs aux butées
+		if(value<m_buteeBasse){value==m_buteeBasse;}
+		if(value>m_buteeHaute){value==m_buteeHaute;}
 	//---- Si utilisation normale (sans réglage de vitesse)
 	if(speed==1000){	
-		//--- On écrit écrit directement sur le véritable servo
+		//--- On écrit directement sur le véritable servo
 			servo->write(value);
 	}
 	

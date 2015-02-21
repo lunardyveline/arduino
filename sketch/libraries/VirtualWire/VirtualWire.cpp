@@ -145,7 +145,7 @@ String recevoirTexte(){
            message = message + char(buf[i]);
          }
       }
-	  else message="vide";
+	  else message="";
 	
 	return message;
 }
@@ -471,6 +471,9 @@ uint8_t vw_send(uint8_t* buf, uint8_t len)
 // Its job is to output the next bit from the transmitter (every 8 calls)
 // and to call the PLL code if the receiver is enabled
 //ISR(SIG_OUTPUT_COMPARE1A)
+////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////// >>>>>>>>>>>>>>>>>>>> C'est normalement le timer 1 
+///////////////////////////////////////////////////////////
 SIGNAL(TIMER1_COMPA_vect)
 {
     vw_rx_sample = digitalRead(vw_rx_pin);

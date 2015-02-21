@@ -10,10 +10,23 @@
  * Also influenced by http://zovirl.com/2008/11/12/building-a-universal-remote-with-an-arduino/
  *
  * JVC and Panasonic protocol added by Kristian Lauszus (Thanks to zenwheel and other people at the original blog post)
+ 
+ EDU : Librairie augmentée par David Souder (souder.d@gmail.com) pour www.duinoedu.com
+ Version du 05/01/2015
+ 
  */
 
 #ifndef IRremote_h
 #define IRremote_h
+
+// Ajout EDU :
+#if (ARDUINO >= 100)
+ #include <Arduino.h>
+#else
+ #include <WProgram.h>
+ #include <pins_arduino.h>
+#endif
+// Fin ajout
 
 // The following are compile-time library options.
 // If you change them, recompile the library.
@@ -24,6 +37,8 @@
 // #define TEST
 
 // Results returned from the decoder
+
+//----- <<CLASSE DECODE>>
 class decode_results {
 public:
   int decode_type; // NEC, SONY, RC5, UNKNOWN
@@ -50,9 +65,10 @@ public:
 // Decoded value for NEC when a repeat code is received
 #define REPEAT 0xffffffff
 
+
 // main class for receiving IR
-class IRrecv
-{
+//----- <<CLASSE IRrecc>>
+class IRrecv{
 public:
   IRrecv(int recvpin);
   void blink13(int blinkflag);
@@ -61,11 +77,19 @@ public:
   void resume();
   /*EDU FR*/ void brancher();
   /*EDU US*/ void branch();
-  /*EDU FR*/ unsigned long lireCodeIr();						// Long
-  /*EDU US*/ unsigned long codeIrReadLong();
+  
+  /*EDU FR*/ unsigned long lireCodeIr(int option=200);						
+  /*EDU US*/ unsigned long codeIrReadLong(int option=200);
+  
+  /*EDU FR*/ bool testerTouche(String touche, int option=200);
+  /*EDU FR*/ bool testTouch(String touch, int option=200);
+  
+		#define IRREMOTE_MEMORISER_TOUCHE -1
+		#define IRREMOTE_MEMORISER_200_MS 200
+		#define IRREMOTE_MEMORISER_2000_MS 2000
+		#define IRREMOTE_NE_PAS_MEMORISER 0
 
- 
-private:
+protected:
   // These are called by decode
   int getRClevel(decode_results *results, int *offset, int *used, int t1);
   long decodeNEC(decode_results *results);
@@ -79,9 +103,16 @@ private:
   long decodeHash(decode_results *results);
   int compare(unsigned int oldval, unsigned int newval);
   /*EDU US*/ decode_results serialImpuls;
+  /*EDU US*/ unsigned long m_lastCode;
+  /*EDU US*/ unsigned long m_dateCode;          // Date à laquelle le dernier code à été lu
+  /*EDU US*/ unsigned long m_lifeCode;			// Durée de vie du code
+  /*EDU US*/ bool m_longPush;					// True si appui long en cours
+  /*EDU US*/ unsigned long m_dateLongPush;		// Date à laquelle la dernier appui long a été demandé
+  /*EDU US*/ unsigned long m_lifeLongPush;		// Durée de vie minimum d'un appui long (évite les rebondissements)
 
-} 
-;
+		
+  
+};
 
 // Only used for testing; can remove virtual for shorter code
 #ifdef TEST
@@ -90,8 +121,9 @@ private:
 #define VIRTUAL
 #endif
 
-class IRsend
-{
+
+//----- <<CLASSE IRsend>> 
+class IRsend{
 public:
   IRsend() {}
   void sendNEC(unsigned long data, int nbits);
@@ -110,8 +142,7 @@ public:
   void enableIROut(int khz);
   VIRTUAL void mark(int usec);
   VIRTUAL void space(int usec);
-}
-;
+};
 
 // Some useful constants
 

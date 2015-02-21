@@ -6,6 +6,17 @@
   Original Author: David Souder
   
 */
+
+/*REMARQUES - TESTS
+
+> L'utilisation sans réglage de vitesse est possible mais sans utiliser Serial.begin(...) (problème de debug trop long ?)
+
+
+
+
+
+
+*/
 #ifndef MotorI2C_H
 #define MotorI2C_H
 
@@ -78,9 +89,11 @@ class MotorI2C{
 	//Méthodes 
 		/*EDU US*/ 	void sendI2C(uint8_t com=0);
 	//Mémoire
-		uint16_t speedMotorA;
-		uint16_t speedMotorB;
-		uint8_t debug;             	     // 1=Mode débugage 0=normal
+		int16_t m_vitesseA;			// Vitesse demandée
+		int16_t m_vitesseB;			// Vitesse demandée
+		int16_t speedMotorA;		// Vitesse actuelle
+		int16_t speedMotorB;		// Vitesse actuelle
+		int8_t debug;             	     // 1=Mode débugage 0=normal
 		
 };
 #endif

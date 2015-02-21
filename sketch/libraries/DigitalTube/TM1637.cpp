@@ -37,8 +37,12 @@ TM1637::TM1637(uint8_t Clk, uint8_t Data)
 
 }
 
-void TM1637::init(void)
-{
+/*EDU FR*/void	TM1637::brancher(void){
+	init();
+	//---- On régle la luminosité par défaut
+	set(7);			
+}
+void TM1637::init(void){
   clearDisplay();
 }
 
@@ -65,6 +69,7 @@ void TM1637::init(void)
 	
 	if(number==m_lastValueInt){return;}
 	m_lastValueInt=number;
+	
 	clearDisplay();
 
 //---- X0:00
@@ -112,8 +117,6 @@ void TM1637::init(void)
 	}
 	
 }
-
-
 
 
 void TM1637::writeByte(int8_t wr_data)
@@ -203,12 +206,18 @@ void TM1637::display(uint8_t BitAddr,int8_t DispData)
   stop();           //
 }
 
-void TM1637::clearDisplay(void)
-{
-  display(0x00,0x7f);
-  display(0x01,0x7f);
-  display(0x02,0x7f);
-  display(0x03,0x7f);  
+/*EDU *FR*/void TM1637::effacer(void){
+	//---- On signal un effacement
+		m_lastValueInt=-1;
+	//---- Effacement effectif
+		clearDisplay();
+}
+void TM1637::clearDisplay(void){
+	//---- On efface les 4 digits
+		display(0x00,0x7f);
+		display(0x01,0x7f);
+		display(0x02,0x7f);
+		display(0x03,0x7f);  
 }
 //To take effect the next time it displays.
 void TM1637::set(uint8_t brightness,uint8_t SetData,uint8_t SetAddr)

@@ -268,9 +268,7 @@ void SeeedOLED::sendData(unsigned char Data){
 
 //----- Writing
 // Int => String
-/*EDU FR*/ void SeeedOLED::ecrire(int32_t nbr){
-		newWrite(nbr);
-}//*/
+/*EDU FR*/ void SeeedOLED::ecrire(int32_t nbr){newWrite(nbr);}//*/
 /*EDU US*/ void SeeedOLED::newWrite(int32_t nbr){
 	//--- On convertit en String
 		DEBUG2("Le nbr recu est : ", nbr); 
@@ -340,6 +338,10 @@ void SeeedOLED::sendData(unsigned char Data){
 
 
 /*EDU US*/ 	void SeeedOLED::effectiveNewWrite(String newString){
+	
+	//--- On teste pour voir si la chaîne est nulle
+		if(newString==""){return;}
+
 	//--- On crée des variables locales 
 		int8_t userCol;			// Utilisée pour sauvegarder la position du curseur utilisateur
 	

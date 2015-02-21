@@ -42,6 +42,7 @@ Adafruit_NeoPixel::Adafruit_NeoPixel(uint16_t n, uint8_t p, uint8_t t) : numLEDs
    pinMask(digitalPinToBitMask(p))
 #endif
 {
+	/*EDU US*/ m_nbrOfLed=n;
   if((pixels = (uint8_t *)malloc(numBytes))) {
     memset(pixels, 0, numBytes);
   }
@@ -830,21 +831,121 @@ void Adafruit_NeoPixel::setPin(uint8_t p) {
 }
 
 
+//EDU : Préparer 1 seul pixel (ou plusieurs)
 // Set pixel color from separate R,G,B components:
-/*EDU FR*/	void Adafruit_NeoPixel::preparerPixel(uint16_t n, uint16_t r, uint16_t g, uint16_t b){
+/*EDU FR*/	void Adafruit_NeoPixel::preparerPixel(uint16_t startLed, uint16_t r, uint16_t g, uint16_t b, uint16_t widthGroupe, uint8_t step, int16_t endR, int16_t endG, int16_t endB){
 
-		setPixel(n, r, g, b);
+		setPixel(startLed, r, g, b, widthGroupe, step, endR, endG, endB );
 }//*/
-/*EDU US*/	void Adafruit_NeoPixel::setPixel(uint16_t n, uint16_t r, uint16_t g, uint16_t b){
-	//---- On ajuste les valeurs de couleur 0-255 à 0-1000
+/*EDU US*/	void Adafruit_NeoPixel::setPixel     (uint16_t startLed, uint16_t r, uint16_t g, uint16_t b, uint16_t widthGroupe, uint8_t step, int16_t endR, int16_t endG, int16_t endB){
+	/*	n 				numéro de la première LED
+		r,g,b			les 3 couleurs
+		endPixel		la dernière LED concernée
+		step			pas pour la répétition (toutes les step LED)
+	*/
+	
+	//---- On corrige les valeurs
 		//--- On limite à 1000
-			if(r>1000){r=1000;} 	if(g>1000){g=1000;}	if(b>1000){b=1000;}	
-		//--- On divise par 4
-			r/=4;	g/=4;	b/=4;
-		//--- On lance la fonction
-			setPixelColor(n, r, g, b);
+			if(r>1000){r=1000;} if(g>1000){g=1000;}	if(b>1000){b=1000;}	
+
+		//--- On ajuste la LED de fin
+			/**/ if(widthGroupe>=m_nbrOfLed){widthGroupe=m_nbrOfLed;}
+	
+	//--- Calculs utiles par la suite
+		//-- On calcule combien de led sont concernées par ce fade
+			//Serial.println("--------");
+			int nbrLedFade = widthGroupe;					    // Plage active
+			//Serial.println(nbrLedFade);							// Ex : 7
+		
+			nbrLedFade*=10;										// Pour pouvoir obtenir un reste
+			//Serial.println(nbrLedFade);							// Ex 70
+			
+			nbrLedFade/=step;									// Division par nbr de step (Ex:3)
+			//Serial.println(nbrLedFade);							// Ex : 26 (pour 2.6)
+			
+			int reste;											// Reste de la division entière
+			reste=nbrLedFade%10;								// Ex : 6
+			//Serial.println(reste);		
+				
+			nbrLedFade/=10;										// On repasse à la valeur réelle
+			//Serial.println(nbrLedFade);							// Ex : 2
+			
+			/*//*/if(reste!=0){nbrLedFade+=1;}					// Ajustement de la valeur par excès
+			//Serial.println(nbrLedFade);							// Ex : 3
+			
+			// => A ce stade, on connaît le nbr exact de led allumée sur le ségments.
+	
+		//-- On Calcule l'atténuation totale en rouge
+			//Serial.println("FADE ROUGE------");
+			int deltaFadeR=0;				// Par défaut, elle est nulle
+			int deltaFadeG=0;				// Par défaut, elle est null
+			int deltaFadeB=0;				// Par défaut, elle est null
+			
+			//Serial.print("r : ");
+			//Serial.println(r);
+			
+			//- Si la couleur de fin est -1 alors, il n'y a pas de changement à opérer
+			if(endR==-1){endR=r;}
+			if(endG==-1){endG=g;}
+			if(endB==-1){endB=b;}
+			//Serial.print("endR : ");
+			//Serial.println(endR);
+			
+			deltaFadeR =r-endR;		        // Amplitude de la modification en rouge (entre début et fin de section)
+			deltaFadeG =g-endG;
+			deltaFadeB =b-endB;
+			//Serial.print("deltaFadeR total : ");
+			//Serial.println(deltaFadeR);		// Ex : 1000
+
+			deltaFadeR/=(nbrLedFade-1);		// Saut en rouge
+			deltaFadeG/=(nbrLedFade-1);		// Saut en vert
+			deltaFadeB/=(nbrLedFade-1);		// Saut en bleu
+			//Serial.print("deltaFadeR par pas : ");
+			//Serial.println(deltaFadeR);		// Ex : 250
+				
+	
+	//--- On prépare les pixels
+		uint8_t 	curseurPixel;			// Led à traiter
+		uint16_t	ampR;					// Quantité de rouge
+		uint16_t	ampG;					
+		uint16_t	ampB;					
+		
+	//-- On détermine l'adresse de la première Led (StratLed peut être très grand)
+		uint16_t effectiveStartLed;
+		if(startLed<m_nbrOfLed){
+			//- Pas de calcul à faire
+				effectiveStartLed=startLed;
+		}
+		else{
+			//- Il faut retirer la partie entière
+				effectiveStartLed=startLed%m_nbrOfLed;
+				Serial.println(effectiveStartLed);
+		}		
+
+		
+		for(int i=0;i<nbrLedFade;i++){ 
+			//-- On détermine le n° de la Led concernée 
+				curseurPixel = effectiveStartLed + i*step;
+				if(curseurPixel>=m_nbrOfLed){
+					curseurPixel=(effectiveStartLed + i*step)-m_nbrOfLed;
+				}
+			//-- On calcule les couleurs
+				ampR = r-(i*deltaFadeR);							
+				ampG = g-(i*deltaFadeG);
+				ampB = b-(i*deltaFadeB);
+			
+			//--- Actualisation des réglages
+				setPixelColor1000(curseurPixel, ampR, ampG, ampB);
+		}
 }//*/
+
+/*EDU US*/ void Adafruit_NeoPixel::setPixelColor1000( uint16_t n, uint16_t r, uint16_t g, uint16_t b){
+	//-- On ajuste les valeurs à 255 max
+		r/=4; g/=4; b/=4;
+		setPixelColor(n,r,g,b);
+}
 void Adafruit_NeoPixel::setPixelColor( uint16_t n, uint16_t r, uint16_t g, uint16_t b) {
+
   if(n < numLEDs) {
     if(brightness) { // See notes in setBrightness()
       r = (r * brightness) >> 8;
@@ -857,6 +958,7 @@ void Adafruit_NeoPixel::setPixelColor( uint16_t n, uint16_t r, uint16_t g, uint1
     p[bOffset] = b;
   }
 }
+
 
 
 // Set pixel color from 'packed' 32-bit RGB color:
@@ -879,6 +981,8 @@ void Adafruit_NeoPixel::setPixelColor(uint16_t n, uint32_t c) {
     p[bOffset] = b;
   }
 }
+
+
 
 
 /*EDU FR*/	void Adafruit_NeoPixel::ecrirePixel(uint16_t n, uint16_t r, uint16_t g, uint16_t b){writePixel(n,r,g,b);}

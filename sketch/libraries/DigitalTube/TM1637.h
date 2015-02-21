@@ -17,6 +17,9 @@
 //
 //  Modified record:
 //
+//	Librairie augmentée par David Souder - souder.d@gmail.com pour DuinoEDU.com
+//	Version du 20/02/2015
+//
 /*******************************************************************************/
 
 #ifndef TM1637_h
@@ -36,9 +39,9 @@
 #define  BRIGHT_TYPICAL 2
 #define  BRIGHTEST      7
 
-#define brancher init
+//#define brancher init  			//Remplacé par une véritable méthode
 #define luminosite set
-#define effacer clearDisplay
+//#define effacer clearDisplay		//Remplacé par une véritable méthode
 #define luminositeA set
 #define afficher display
 #define afficherSur1(val) display(0, val);
@@ -57,26 +60,27 @@ class TM1637
     uint8_t Cmd_DispCtrl;
     boolean _PointFlag;     //_PointFlag=1:the clock point on
     TM1637(uint8_t, uint8_t);
-	
-	/*EDU US*/ void ecrire(long number);
-	/*EDU US*/ void writeInt(long number);
+	/*EDU FR*/	void 	brancher();
+	/*EDU US*/ 	void 	ecrire(long number);
+	/*EDU US*/ 	void 	writeInt(long number);
     void init(void);        //To clear the display
     void writeByte(int8_t wr_data);//write 8bit data to tm1637
     void start(void);//send start bits
     void stop(void); //send stop bits
     void display(int8_t DispData[]);
     void display(uint8_t BitAddr,int8_t DispData);
-    void clearDisplay(void);
+	/*EDU FR*/	void 	effacer();
+    void clearDisplay();
     void set(uint8_t = BRIGHT_TYPICAL,uint8_t = 0x40,uint8_t = 0xc0);//To take effect the next time it displays.
     void point(boolean PointFlag);//whether to light the clock point ":".To take effect the next time it displays.
     void coding(int8_t DispData[]); 
     int8_t coding(int8_t DispData); 
   private:
-	/*EDU US*/	long 			m_lastValueInt;
+	/*EDU US*/	long 		m_lastValueInt;
 	/*EDU US*/  uint16_t 	m_minRefresh;
-	/*EDU US*/  uint16_t   m_moyRefresh;
-	/*EDU US*/  uint16_t   m_maxRefresh;
-	/*EDU US*/  long 			m_lastDate;
+	/*EDU US*/  uint16_t    m_moyRefresh;
+	/*EDU US*/  uint16_t    m_maxRefresh;
+	/*EDU US*/  long 		m_lastDate;
     uint8_t Clkpin;
     uint8_t Datapin;
 };

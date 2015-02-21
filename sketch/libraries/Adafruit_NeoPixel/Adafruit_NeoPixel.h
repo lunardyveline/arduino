@@ -17,8 +17,8 @@
   --------------------------------------------------------------------*/
   
   /*------------------------------------------------------------------
-  Librairie augmentée par DuinoEDU
-  Dernières modifications : 10/2014
+  Augmenté par David Souder (souder.d@gmail.com) pour www.duinoedu.com
+  Version du 07/01/2014
   -------------------------------------------------------------------*/
 
 #ifndef ADAFRUIT_NEOPIXEL_H
@@ -68,48 +68,54 @@ class Adafruit_NeoPixel {
 	/*EDU FR*/	void brancher();
 	/*EDU US*/	void branch();
 
-
 	/*ARD US*/  void	setPin(uint8_t p);
 	
-	/*EDU FR*/	void 	preparerPixel(uint16_t n, uint16_t r, uint16_t g, uint16_t b);
-	/*EDU US*/	void 	setPixel(uint16_t n, uint16_t r, uint16_t g, uint16_t b);
-    /*ARD US*/  void	setPixelColor(uint16_t n, uint16_t r, uint16_t g, uint16_t b);
-
-	/*EDU FR*/	void 	ecrirePixel(uint16_t n, uint16_t r, uint16_t g, uint16_t b);
-	/*EDU US*/	void 	writePixel(uint16_t n, uint16_t r, uint16_t g, uint16_t b);
-	
+						//-- Préparation : 1 pixel (ou plusieurs) avec 3 valeurs (R,G,B)
+	/*EDU FR*/	void 	preparerPixel(uint16_t startLed, uint16_t r, uint16_t g, uint16_t b, uint16_t widthGroupe=1, uint8_t step=1, int16_t endR=-1,int16_t endG=-1,int16_t endB=-1);
+	/*EDU US*/	void 	setPixel     (uint16_t startLed, uint16_t r, uint16_t g, uint16_t b, uint16_t widthGroupe=1, uint8_t step=1, int16_t endR=-1,int16_t endG=-1,int16_t endB=-1);                                             
+	/*EDU US*/  void	setPixelColor1000(uint16_t n, uint16_t r, uint16_t g, uint16_t b);
+	/*ARD US*/  void	setPixelColor(uint16_t n, uint16_t r, uint16_t g, uint16_t b);
+						
+						//-- Préparation : 1 pixel avec une seule valeur
 	/*EDU FR*/	void 	preparerPixel(uint16_t n, uint32_t c);
 	/*EDU US*/	void 	setPixel(uint16_t n, uint32_t c);
     /*ARD US*/  void	setPixelColor(uint16_t n, uint32_t c);
-   
- 	/*EDU US*/	void 	ecrireLuminosite(uint16_t b);  
-    /*ARD US*/  void	setBrightness(uint8_t b);
+
 	
-	/*EDU US*/  void effacerTout(void);
-	/*EDU US*/  void clearAll(void);		
-	
-		
+						//-- Actualise ce qui a été préparé
 	/*ARD US*/  void 	begin(void);
-	/*EDU FR*/	void  afficher(void) ;
+	/*EDU FR*/	void  	afficher(void) ;
     /*ARD US*/  void 	show(void);
 	
-		uint8_t
-			*getPixels(void) const;
-		uint16_t
-			numPixels(void) const;
-		static uint32_t
-			Color(uint8_t r, uint8_t g, uint8_t b);
-		uint32_t
-			getPixelColor(uint16_t n) const;
+						//-- Préparation et affichage avec 3 valeurs
+	/*EDU FR*/	void 	ecrirePixel(uint16_t n, uint16_t r, uint16_t g, uint16_t b);
+	/*EDU US*/	void 	writePixel(uint16_t n, uint16_t r, uint16_t g, uint16_t b);
+   
+						//-- Réglage luminosité (0 à 1000)
+ 	/*EDU US*/	void 	ecrireLuminosite(uint16_t b);  
+    /*ARD US*/  void	setBrightness(uint8_t b);
 
-		
+						//-- Effacer tout le ruban
+	/*EDU US*/  void 	effacerTout(void);
+	/*EDU US*/  void 	clearAll(void);		
+	
+
+	
+	uint8_t
+		*getPixels(void) const;
+	uint16_t
+		numPixels(void) const;
+	static uint32_t
+		Color(uint8_t r, uint8_t g, uint8_t b);
+	uint32_t
+		getPixelColor(uint16_t n) const;
 
     
- private:
-
+ protected:
+	/*EDU US*/	uint16_t m_nbrOfLed;
 	uint16_t
-		numLEDs,       		// Number of RGB LEDs in strip
-		numBytes;      		// Size of 'pixels' buffer below (x3)
+		numLEDs,       			// Number of RGB LEDs in strip
+		numBytes;      			// Size of 'pixels' buffer below (x3)
 	uint8_t
 		pin,           			// Output pin number
 		brightness,
@@ -121,13 +127,14 @@ class Adafruit_NeoPixel {
   const uint8_t
 		type;          			// Pixel flags (400 vs 800 KHz, RGB vs GRB color)
 		uint32_t
-		endTime;       		// Latch timing reference
+		endTime;       			// Latch timing reference
+
 
 #ifdef __AVR__
   const volatile uint8_t
 		*port;         			// Output PORT register
 		uint8_t
-		pinMask;       		// Output PORT bitmask
+		pinMask;       			// Output PORT bitmask
 #endif
 
 };

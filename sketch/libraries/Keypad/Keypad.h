@@ -28,6 +28,10 @@
 || | Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 || #
 ||
+	
+	EDU : Version augmentée par David Souder (souder.d@gmail.com) pour www.duinoedu.com
+	Version du 05/01/2015
+	
 */
 
 #ifndef KEYPAD_H

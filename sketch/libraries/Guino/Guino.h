@@ -15,7 +15,7 @@
 	Cette librairie est librement utilisable
 	www.duinoedu.com
 	
-	Version 0.7 - du 26/11/2014
+	Version 0.8 - du 12/12/2014
 */
 
 
@@ -85,8 +85,8 @@
 #define GUINO_GERER_INTERFACE() guino_update() 	// Inconditionnel 
 #define GUINO_LIRE(val) gUpdateValue(&val);				// Met à jour les graphiques
 
-//---- Utilisées pour définir l'apparance de l'interface
-	//-- La fonction elle-même
+//---- Utilisées pour définir l'apparence de l'interface
+	//-- La fonction de description de l'apparence elle-même
 	#define GUINO_DEFINIR_INTERFACE() gInit()
 	//-- Les fonctions utilisables dans la précédente fonction
 		//- Les outils disponibles
@@ -96,6 +96,9 @@
 			#define GUINO_AFFICHER_POTENTIOMETRE(titre, adr, min, max) gAddSlider(min,max,titre, &adr)
 			// Ajouter un interrupteur vituel (toogle)
 			#define GUINO_AFFICHER_INTERRUPTEUR(titre, adr) gAddToggle(titre, &adr)
+			// Ajouter une pause à l'endroit du bouton
+			#define GUINO_AFFICHER_PAUSE(adr) gAddPause(&adr)
+			#define GUINO_GERER_PAUSE(adr) gUpdatePause(&adr)
 			
 		//- Gestion d'apparence
 		#define GUINO_AFFICHER_TITRE(arg1) gAddLabel(arg1, 1)
@@ -113,7 +116,7 @@ static boolean guidino_initialized = false;
 	//---- Fonctions opératives
 	
 		static void 					EEPROMWriteInt(int p_address, int p_value);
-		static unsigned int 		EEPROMReadInt(int p_address);
+		static unsigned int 			EEPROMReadInt(int p_address);
 		static void 					guino_update();
 		static void 					gInitEEprom();
 		static void 					gSetColor(int _red, int _green, int _blue);
@@ -125,6 +128,7 @@ static boolean guidino_initialized = false;
 		static int 						gAddSpacer(int _size);
 		static int 						gAddToggle(char * _name, int * _variable, int min=0, int max=0);
 		static int 						gAddFixedGraph(char * _name,int _min,int _max,int _bufferSize, int * _variable, int _size);
+		/*EDU US*/ 	static int			gAddPause(int * _variable);
 		
 		/*EDU US*/	static int 	gAddMovingGraphEDU(char * _name,int _min,int _max, int _valeur, int _size);
 		static int 						gAddMovingGraph(char * _name,int _min,int _max, int * _variable, int _size);
@@ -310,8 +314,6 @@ static void gAddColumn()
 }
 
 
-
-
 static int gAddLabel(char * _name, int _size)
 {
   if(guino_maxGUIItems > guino_item_counter)
@@ -344,7 +346,6 @@ static int gAddSpacer(int _size)
 }   
 
 
-
 static int gAddToggle(char * _name, int * _variable, int min, int max)
 {
   if(guino_maxGUIItems > guino_item_counter)
@@ -365,6 +366,21 @@ static int gAddToggle(char * _name, int * _variable, int min, int max)
   }
   return -1;
 }   
+
+/*EDU US*/ 	static int			gUpdatePause(int * _variable){
+	while(*_variable==1){
+		GUINO_GERER_INTERFACE();
+	}
+}
+
+/*EDU US*/ 	static int			gAddPause(int * _variable){
+
+	gAddToggle("PAUSE", _variable);
+
+}
+
+
+
 
 static int gAddFixedGraph(char * _name,int _min,int _max,int _bufferSize, int * _variable, int _size)
 {
