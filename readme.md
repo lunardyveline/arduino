@@ -1,0 +1,3 @@
+![](https://raw.githubusercontent.com/technologiescollege/arduino/master/lib/about.bmp)
+
+IDE Arduino identique à l'original en version 1.6.0, mais enrichi de programmes et de librairies nécessaires pour permettre aux enseignants de disposer d'un environnement clé en main pour installer FirmataPlus et permettre le pilotage par Scratch2 à l'aide de s2a ; et... 
