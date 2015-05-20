@@ -72,7 +72,7 @@ platform.auto_file_type_associations = true
 
 
 # default size for the main window
-editor.window.width.default = 700
+editor.window.width.default = 600
 editor.window.height.default = 700
 
 editor.window.width.min = 400
@@ -125,7 +125,7 @@ editor.keys.home_and_end_travel_far.macosx = true
 console			 = true
 console.output.file      = stdout.txt
 console.error.file       = stderr.txt
-console.lines            = 4
+console.lines            = 6
 
 # set to false to disable automatically clearing the console
 # each time 'run' is hit
@@ -251,7 +251,7 @@ run.present.exclusive.macosx = true
 target_package = arduino
 target_platform = avr
 board = uno
-software = ARDUINO TECHNOEduc v1.6.3
+software=ARDUINO TechnoEduc v1.6.4
 # Warn when data segment uses greater than this percentage
 build.warn_data_percentage = 75
 

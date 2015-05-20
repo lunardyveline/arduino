@@ -1,3 +1,28 @@
+ARDUINO 1.6.4 - 2015.05.06
+
+[ide]
+* Added support for Arduino Gemma
+* Restored previous "error" colour in black lower part of the IDE
+* Relaxed IDE checks against libraries versions
+* Fixed colour of 'char' keyword. Thanks @mixania
+* Tools submenu show selected subentry. Thanks @PaulStoffregen
+* Boards and Libraries Managers command line (with contribs from @Lauszus): --install-board "arduino:Arduino SAM Boards (32-bits ARM Cortex-M3):1.6.3" and --install-library "Bridge:1.0.1". Version can be omitted: if omitted, latest version available is automatically picked
+* Warning levels can be set in File > Preferences
+* When compilation fails, editor highlights the reported row
+* Windows and MacOSX: updated bunbled JVM to 1.8.0_45 (latest available atm)
+* Disabled "uncertified" warning (requires avr core >= 1.6.6, sam core >= 1.6.4)
+* Additional boards/cores can be listed specifying comma separated list of package_SOMETHING_index.json url in File > Preferences
+* MacOSX: fixed wrong sketch opened when double clicking on a .ino file
+* Boards and Libraries main files are downloaded directly (no proxy php script), fixing some glitches when using a proxy server
+* Added notification if the bundled AVR core is newer than the one installed through Boards Manager (useful when upgrading the IDE)
+* Fixed error when in Serial and Network discovery that was leaving the Ports menu greyed out
+* IDE now deletes temporary files on exit. When using the CLI, --preserve-temp-files arguments skips deletion
+
+[libraries]
+* Bridge fixes
+* SD: allow multiple SD instances (@squelched)
+* SD: fix examples with Ethernet shield
+
 ARDUINO 1.6.3 - 2015.04.02
 
 [ide]
