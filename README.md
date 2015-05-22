@@ -7,4 +7,4 @@ IDE Arduino identique à l'original en version 1.6.4, mais enrichi de programmes
 - installer les _shellMega ou Uno_ permettant la communication avec le logiciel **Organigram**, de la société [TechnoZone51](http://www.technozone51.fr/)
 - exécuter une version d'**Ardublock** enrichie, entre autres, des pièces vendues par la société [DuinoEdu](http://www.duinoedu.com/) et de celles de chez [Makeblock](http://www.makeblock.cc/)
 
-![](https://github.com/technologiescollege/arduino/blob/master/lib/about.png)
+![](https://raw.githubusercontent.com/technologiescollege/arduino/master/lib/about.png)
